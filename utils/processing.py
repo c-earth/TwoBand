@@ -1,4 +1,6 @@
+import os
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
 cmap = get_cmap('tab20b')
@@ -61,19 +63,21 @@ def plot_prediction(savename, T, model, BsSs, p, S_scale):
     ax2.plot(Bxy, Sxy_true, linestyle='', marker='.', markersize=10, linewidth=2, color=colors[0][0], label=f'expected $Sxy$, {T}K')
     ax2.plot(Bxy, Sxy_pred, linestyle='--', marker='', markersize=14, linewidth=2, color='r', label=f'predicted $Sxy$, {T}K')
     
-    ax1.set_xlabel(r'$B$ $(T)$', fontsize=24)
-    ax1.set_ylabel(r'$\sigma_{xx}$ $(\Omega^{-1}m^{-1})$', fontsize=24)
-    ax1.legend(fontsize=24,loc='upper right')
-    ax1.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-    ax1.xaxis.get_offset_text().set_size(24)
-    ax1.yaxis.get_offset_text().set_size(24)
+    ax1.set_xlabel(r'$B$ $(T)$', fontsize=20)
+    ax1.set_ylabel(r'$\sigma_{xx}$ [1/$\Omega$m]', fontsize=20)
+    ax1.legend(fontsize=20,loc='best')
+    ax1.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax1.xaxis.get_offset_text().set_size(20)
+    ax1.yaxis.get_offset_text().set_size(20)
+    ax1.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
-    ax2.set_xlabel(r'$B$ $(T)$', fontsize=24)
-    ax2.set_ylabel(r'$\sigma_{xy}$ $(\Omega^{-1}m^{-1})$', fontsize=24)
-    ax2.legend(fontsize=24,loc='lower right')
-    ax2.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-    ax2.xaxis.get_offset_text().set_size(24)
-    ax2.yaxis.get_offset_text().set_size(24)
+    ax2.set_xlabel(r'$B$ $(T)$', fontsize=20)
+    ax2.set_ylabel(r'$\sigma_{xy}$ [1/$\Omega$m]', fontsize=20)
+    ax2.legend(fontsize=20,loc='best')
+    ax2.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax2.xaxis.get_offset_text().set_size(20)
+    ax2.yaxis.get_offset_text().set_size(20)
+    ax2.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
     f.tight_layout()
     f.savefig(savename, dpi=300)
@@ -84,22 +88,22 @@ def plot_residual(savename, params_files):
     for params_file in params_files:
         params = read_params(params_file)
         name = params_file.split('/')[-1][:-11]
-        ax1.plot(params[:, 0], params[:, -2], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
-        ax2.plot(params[:, 0], params[:, -1], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
+        ax1.plot(params[:, 0], params[:, -4], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
+        ax2.plot(params[:, 0], params[:, -3], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
 
-    ax1.set_xlabel(r'$T$ $(K)$', fontsize=24)
-    ax1.set_ylabel(r'$\Delta\sigma_{xx}(RMSE)$', fontsize=24)
-    ax1.legend(fontsize=24, loc='best')
-    ax1.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-    ax1.xaxis.get_offset_text().set_size(24)
-    ax1.yaxis.get_offset_text().set_size(24)
+    ax1.set_xlabel(r'$T$ $(K)$', fontsize=20)
+    ax1.set_ylabel(r'$\Delta\sigma_{xx}(RMSE)$', fontsize=20)
+    # ax1.legend(fontsize=20, loc='best')
+    ax1.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax1.xaxis.get_offset_text().set_size(20)
+    ax1.yaxis.get_offset_text().set_size(20)
 
-    ax2.set_xlabel(r'$T$ $(K)$', fontsize=24)
-    ax2.set_ylabel(r'$\Delta\sigma_{xy}(RMSE)$', fontsize=24)
-    ax2.legend(fontsize=24, loc='best')
-    ax2.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-    ax2.xaxis.get_offset_text().set_size(24)
-    ax2.yaxis.get_offset_text().set_size(24)
+    ax2.set_xlabel(r'$T$ $(K)$', fontsize=20)
+    ax2.set_ylabel(r'$\Delta\sigma_{xy}(RMSE)$', fontsize=20)
+    # ax2.legend(fontsize=20, loc='best')
+    ax2.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax2.xaxis.get_offset_text().set_size(20)
+    ax2.yaxis.get_offset_text().set_size(20)
 
     f.tight_layout()
     f.savefig(savename, dpi=300)
@@ -123,22 +127,77 @@ def plot_fitting_params(savename, params_files, errbar):
             ax2.plot(params[:, 0], params[:, 5],linestyle='--',marker='s',markersize=14,linewidth=3,label='$\mu_e$', color = colors[1][0])
             ax2.plot(params[:, 0], params[:, 1],linestyle='--',marker='s',markersize=14,linewidth=3,label='$\mu_h$', color = colors[2][0])
 
-        ax1.set_xlabel(r'$T$ $(K)$', fontsize=24)
-        ax1.set_ylabel(r'$n$ $(m^{-3})$', fontsize=24)
+        ax1.set_xlabel(r'$T$ $(K)$', fontsize=20)
+        ax1.set_ylabel(r'$n$ $(m^{-3})$', fontsize=20)
         ax1.set_yscale('log')
-        ax1.legend(fontsize=24, loc='center left')
-        ax1.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-        ax1.xaxis.get_offset_text().set_size(24)
-        ax1.yaxis.get_offset_text().set_size(24)
+        ax1.legend(fontsize=20, loc='center left')
+        ax1.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+        ax1.xaxis.get_offset_text().set_size(20)
+        ax1.yaxis.get_offset_text().set_size(20)
 
-        ax2.set_xlabel(r'$T$ $(K)$', fontsize=24)
-        ax2.set_ylabel(r'$\mu$ $(m^2/Vs)$', fontsize=24)
+        ax2.set_xlabel(r'$T$ $(K)$', fontsize=20)
+        ax2.set_ylabel(r'$\mu$ $(m^2/Vs)$', fontsize=20)
         ax2.set_yscale('log')
-        ax2.legend(fontsize=24, loc='center right')
-        ax2.tick_params(axis='both', which='both', direction='in', labelsize=24, width=3, length=10)
-        ax2.xaxis.get_offset_text().set_size(24)
-        ax2.yaxis.get_offset_text().set_size(24)
+        ax2.legend(fontsize=20, loc='center right')
+        ax2.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+        ax2.xaxis.get_offset_text().set_size(20)
+        ax2.yaxis.get_offset_text().set_size(20)
         
         f.tight_layout()
         f.savefig(savename[:-11] + name + savename[-11:], dpi=300)
         plt.close()
+
+def plot_sigma(Ts, Bxxs, Sxxs, Bxys, Sxys, resu_dir, S_scale):
+    colors = mpl.colormaps['gnuplot'](np.linspace(0.1, 0.9, int(np.max(Ts)) + 1))
+    cmap = mpl.colors.LinearSegmentedColormap.from_list('custom_gnuplot', colors)
+
+    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8))
+    for T, Bxx, Sxx, Bxy, Sxy in zip(Ts, Bxxs, Sxxs, Bxys, Sxys):
+        ax1.plot(Bxx, Sxx * S_scale, '-', color = colors[int(T)], linewidth = 3)
+        ax2.plot(Bxy, Sxy * S_scale, '-', color = colors[int(T)], linewidth = 3)
+
+    ax1.set_xlabel(r'$B$ [T]', fontsize = 20)
+    ax1.set_ylabel(r'$\sigma_{xx}$ [$1/\Omega$m]', fontsize = 20)
+    ax1.tick_params(which = 'both', direction = 'in', top = False, right = False, length = 5, width = 1.5, labelsize = 20)
+    ax1.set_xlim((np.min(Bxx), np.max(Bxx)))
+    ax1.yaxis.get_offset_text().set_size(20)
+
+    ax2.set_xlabel(r'$B$ [T]', fontsize = 20)
+    ax2.set_ylabel(r'$\sigma_{xy}$ [$1/\Omega$m]', fontsize = 20)
+    ax2.tick_params(which = 'both', direction = 'in', top = False, right = False, length = 5, width = 1.5, labelsize = 20)
+    ax2.set_xlim((np.min(Bxy), np.max(Bxy)))
+    ax2.yaxis.get_offset_text().set_size(20)
+
+    cb = f.colorbar(plt.cm.ScalarMappable(cmap = cmap, norm = plt.Normalize(vmin = 0, vmax = np.max(Ts))))
+    cb.ax.set_title(r'$T$ (K)', fontsize = 20)
+    cb.ax.tick_params(length = 5, width = 1.5, labelsize = 20)
+
+    f.tight_layout()
+    f.savefig(os.path.join(resu_dir, 'sigma_vs_B.png'))
+    plt.close()
+
+def plot_relative_residual(savename, params_files):
+    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8))
+    for params_file in params_files:
+        params = read_params(params_file)
+        name = params_file.split('/')[-1][:-11]
+        ax1.plot(params[:, 0], params[:, -2], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
+        ax2.plot(params[:, 0], params[:, -1], linestyle='-', marker='o', markersize=12, linewidth=3, label=name, color = colors[0][0])
+
+    ax1.set_xlabel(r'$T$ $(K)$', fontsize=20)
+    ax1.set_ylabel(r'$\Delta\sigma_{xx}(RMSRE)$', fontsize=20)
+    # ax1.legend(fontsize=20, loc='best')
+    ax1.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax1.xaxis.get_offset_text().set_size(20)
+    ax1.yaxis.get_offset_text().set_size(20)
+
+    ax2.set_xlabel(r'$T$ $(K)$', fontsize=20)
+    ax2.set_ylabel(r'$\Delta\sigma_{xy}(RMSRE)$', fontsize=20)
+    # ax2.legend(fontsize=20, loc='best')
+    ax2.tick_params(axis='both', which='both', direction='in', labelsize=20, width=3, length=10)
+    ax2.xaxis.get_offset_text().set_size(20)
+    ax2.yaxis.get_offset_text().set_size(20)
+
+    f.tight_layout()
+    f.savefig(savename, dpi=300)
+    plt.close()

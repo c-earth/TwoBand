@@ -2,12 +2,12 @@ import os
 import numpy as np
 from scipy.optimize import curve_fit
 
-from utils.processing import read_file, plot_prediction, plot_residual, plot_fitting_params
+from utils.processing import read_file, plot_prediction, plot_residual, plot_fitting_params, plot_sigma, plot_relative_residual
 from utils.model import *
 
 
 # absolute path to data folder
-data_dir = '/home/c_earth/linked_server_data1/Manasi/TwoBand/S4/'
+data_dir = 'D:/python_project/TwoBand/S2/'
 resu_dir = data_dir[:-1] + '_two_band_fitting/'
 if not (os.path.exists(resu_dir)):
     os.makedirs(resu_dir)
@@ -42,6 +42,10 @@ for f in os.listdir(data_dir):
 print('Start fitting the data at the following temperature.')
 Temperatures = np.sort(list(data.keys()))
 print('T(K): ',Temperatures)
+Bxxs = []
+Sxxs = []
+Bxys = []
+Sxys = []
 
 params_files = []
 for i, T in enumerate(Temperatures):
@@ -54,9 +58,13 @@ for i, T in enumerate(Temperatures):
     print('--------------------------------------')
 
     Bxx, Sxx = data[T]['xx']
+    Bxxs.append(Bxx)
     Sxx /= S_scale
+    Sxxs.append(Sxx)
     Bxy, Sxy = data[T]['xy']
+    Bxys.append(Bxy)
     Sxy /= S_scale
+    Sxys.append(Sxy)
     Bs = np.concatenate((Bxx, Bxy))
     Ss = np.concatenate((Sxx, Sxy))
     BsSs = np.concatenate((Bs, Ss))
@@ -98,10 +106,13 @@ for i, T in enumerate(Temperatures):
             dsxx0 *= S_scale
 
             # calculate residual of fitting
-            Ss_diff = (verify(BsSs, *p) - Ss) / sigma
+            Ss_diff = (verify(BsSs, *p) - Ss) / sigma 
+            Ss_relative_diff = Ss_diff /np.max(np.abs(Sxy))
             l = int(len(Ss_diff) // 2)
             resxy = np.sqrt(np.mean((Ss_diff[0*l:1*l])**2))
             resxx = np.sqrt(np.mean((Ss_diff[1*l:2*l])**2))
+            relresxy = np.sqrt(np.mean((Ss_relative_diff[0*l:1*l])**2))
+            relresxx = np.sqrt(np.mean((Ss_relative_diff[1*l:2*l])**2))
 
             # recode data to file
             params_file = f'{resu_dir}model{name}_params.txt'
@@ -111,9 +122,9 @@ for i, T in enumerate(Temperatures):
                     f.writelines(['T(K)\t',
                                     'uh(m^2/Vs)\t', 'duh(m^2/Vs)\t', 'nh(m^-3)\t', 'dnh(m^-3)\t',
                                     'ue(m^2/Vs)\t', 'due(m^2/Vs)\t', 'ne(m^-3)\t', 'dne(m^-3)\t',
-                                    'sxx0(1/Om)\t', 'dsxx0(1/Om)\t', 'resxx\t', 'resxy\n'])
-                f.writelines(['%.2f\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5f\t%.5f\n'
-                                %(T, uh, duh, nh, dnh, ue, due, ne, dne, sxx0, dsxx0, resxx, resxy)])
+                                    'sxx0(1/Om)\t', 'dsxx0(1/Om)\t', 'resxx\t', 'resxy\t', 'relresxx\t', 'relresxy\n'])
+                f.writelines(['%.2f\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5e\t%.5f\t%.5f\t%.5f\t%.5f\n'
+                                %(T, uh, duh, nh, dnh, ue, due, ne, dne, sxx0, dsxx0, resxx, resxy, relresxx, relresxy)])
 
             # plot fitting against data
             plot_prediction(f'{resu_dir}model{name}_predict_{T}K.png', T, verify, BsSs, p, S_scale)
@@ -124,6 +135,9 @@ for i, T in enumerate(Temperatures):
 
     print('--------------------------------------')
 
+plot_sigma(Temperatures, Bxxs, Sxxs, Bxys, Sxys, resu_dir, S_scale)
+
 # plot fitting parameters, residual for each model at different temperatures
 plot_residual(f'{resu_dir}model_residual.png', params_files)
+plot_relative_residual(f'{resu_dir}model_relative_residual.png', params_files)
 plot_fitting_params(f'{resu_dir}_params.png', params_files, False)
